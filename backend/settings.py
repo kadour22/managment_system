@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'User',
     'Project',
     'Bug',
+    'Notifications',
     'rest_framework',
 ]
 AUTH_USER_MODEL = "User.User"
