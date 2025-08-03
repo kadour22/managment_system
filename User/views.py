@@ -3,17 +3,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 # local imports
+from .utils import get_account_data
 from .serializers import user_serializer, accounts_serializer, ChangePasswordSerializer
 from .models import User, Account
 from .permissions import AdminPermission, DeveloperPermission, TesterPermission
 
-class admin_view(APIView) :
-    permission_classes = [AdminPermission]
-    def get(self,request) :
-        return Response("welcome to admin Dashboard.")
-
 class add_user_view(APIView) :
-    permission_classes = [AdminPermission]
+    
     def post(self, request, *args, **kwargs) :
         serializer = user_serializer(data=request.data)
         if serializer.is_valid() :
@@ -32,17 +28,15 @@ class ChangePasswordView(APIView):
             user.save()
             return Response({"detail": "Password changed successfully"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class DashboardView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-class tester_api_view(APIView) :
-    permission_classes = [TesterPermission]
-    def get(self, request, *args, **kwargs) :
-        account = Account.objects.get(user=request.user)
-        serializer = accounts_serializer(account, many=False)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-class developer_api_view(APIView) :
-    permission_classes = [DeveloperPermission]
-    def get(self, request, *args, **kwargs) :
-        account = Account.objects.get(user=request.user)
-        serializer = accounts_serializer(account, many=False)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request):
+
+        if request.user.role == "Developer":
+            return get_account_data(user=request.user)
+        elif request.user.role == "Tester":
+            return get_account_data(user=request.user)
+        elif request.user.role == "Admin":
+            return get_account_data(user=request.user)
+        return Response({"error": "Unknown role"}, status=status.HTTP_403_FORBIDDEN)

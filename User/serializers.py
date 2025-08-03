@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import User, Account
 from django.contrib.auth import authenticate
-
+from Notifications.serializers import NotificationSerializer
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
@@ -18,9 +18,12 @@ class ChangePasswordSerializer(serializers.Serializer):
         return value
     
 class user_serializer(serializers.ModelSerializer) :
+    notifications = NotificationSerializer(many=True, read_only=True)
+
     class Meta :
         model  = User
-        fields = "__all__"
+        fields = ['username', 'email', 'role','notifications']
+        read_only_fields = ['notifications']
     
     def create(self, validated_data):
         password = validated_data.pop('password')
@@ -35,5 +38,5 @@ class accounts_serializer(serializers.ModelSerializer) :
     email    = serializers.CharField(source='user.email')
     class Meta :
         model = Account
-        fields = "__all__"
+        exclude = ['id', 'created_at', 'user']
         read_only_fields = ['id','user','username','email']

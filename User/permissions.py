@@ -5,9 +5,9 @@ class AdminPermission(BasePermission):
         return request.user.is_authenticated and request.user.role == "Admin"
 
 class DeveloperPermission(BasePermission) :
-    def has_object_permission(self, request, view, obj):
+    def has_permission(self, request, view):
         return request.user.is_authenticated  and  request.user.role == "Developer" 
 
 class TesterPermission(BasePermission) :
-    def has_object_permission(self, request, view, obj):
+    def has_permission(self, request, view):
         return request.user.is_authenticated  and  request.user.role == "Tester" 
